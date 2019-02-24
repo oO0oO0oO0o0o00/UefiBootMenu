@@ -1,0 +1,32 @@
+## @file
+# This package is for MeowCat's uefi boot menu app.
+#
+# File/Directory Orignazation:
+# |- Meow           : Main app
+# |- MeowPkg.dec    : This file
+# |- MeowPkg.dsc    : Nt32 platform DSC file
+#
+#
+# This program and the accompanying materials
+# are licensed and made available under the terms and conditions of the BSD License
+# which accompanies this distribution. The full text of the license may be found at
+# http://opensource.org/licenses/bsd-license.php
+#
+# THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
+# WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+#
+#
+
+# A dec file contains "export" data.
+
+[Defines]
+  DEC_SPECIFICATION              = 0x00010005
+  PACKAGE_NAME                   = MeowPkg
+  PACKAGE_GUID                   = d4a4d4f5-de33-4bcb-9f85-45c034ea4cde
+  PACKAGE_VERSION                = 0.1
+
+# It's not a library package so no "Includes".
+#[Includes]
+
+# And "LibraryClasses".
+#[LibraryClasses]
