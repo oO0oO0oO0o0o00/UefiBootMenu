@@ -25,7 +25,8 @@ pause
 ```cmd
 git clone https://github.com/oO0oO0oO0o0o00/UefiBootMenu.git
 ```
-This will create a `MeowPkg`.
+~~This will create a `MeowPkg`.~~
+And rename resulting folder, `UefiBootMenu` to `MeowPkg`, or not.
 
 5. Build project. Make use of `Conf/target.txt` or just `build -a X64 -t VS2017 -p MeowPkg/MeowPkg.dsc`.
 6. Create a script to copy generated file to emulator home, say `meow2emu.bat` in workspace root:
