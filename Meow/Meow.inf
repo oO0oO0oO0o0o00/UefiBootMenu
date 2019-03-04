@@ -37,6 +37,7 @@
   gEfiSimpleTextInputExProtocolGuid
   gEfiSimplePointerProtocolGuid
   gEfiHiiFontProtocolGuid
+  gEfiDevicePathToTextProtocolGuid
 #  gEfiUgaDrawProtocolGuid                       ## TO_START
 #  gEfiHiiFontProtocolGuid                       ## TO_START
   ## TO_START

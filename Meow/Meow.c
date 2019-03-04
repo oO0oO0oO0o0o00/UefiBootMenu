@@ -4,6 +4,7 @@
 #include <Protocol/SimplePointer.h>
 #include <Protocol/SimpleTextInEx.h>
 #include <Protocol/HiiFont.h>
+#include <Protocol/DevicePathToText.h>
 #include "Activity.h"
 #include "MainActivity.h"
 #include "MeowFunctions.h"
@@ -21,6 +22,8 @@ ACTIVITY			*TopActivity;
 EFI_GRAPHICS_OUTPUT_PROTOCOL *GraphProtocol;
 
 EFI_HII_FONT_PROTOCOL *FontProtocol;
+
+EFI_DEVICE_PATH_TO_TEXT_PROTOCOL *PathConvProtocol;
 
 ///////////////
 
@@ -105,6 +108,13 @@ EFI_STATUS UefiMain( IN EFI_HANDLE ImageHandle, IN EFI_SYSTEM_TABLE *SystemTable
 		return status;
 	}
 	
+	status = gBS->LocateProtocol( &gEfiDevicePathToTextProtocolGuid,
+		NULL, ( VOID **) &PathConvProtocol );
+	if( EFI_ERROR( status ) ){
+		Log( L"Cannot locate device path to text protocol." );
+		PathConvProtocol = NULL;
+	}
+	
 	// Start the Activity.
 	TopActivity->onStart( TopActivity );
 	
@@ -158,8 +168,14 @@ void Log( IN CHAR16 *Text ){
 EFI_STATUS DrawString( CHAR16 *string, const EFI_FONT_DISPLAY_INFO *fontDisplayInfo,
 	EFI_IMAGE_OUTPUT *imageOutput, UINTN x, UINTN y ){
 	return FontProtocol->StringToImage( FontProtocol,
-		EFI_HII_IGNORE_IF_NO_GLYPH | EFI_HII_OUT_FLAG_CLIP | EFI_HII_OUT_FLAG_CLIP_CLEAN_X
+		EFI_HII_OUT_FLAG_CLIP | EFI_HII_OUT_FLAG_CLIP_CLEAN_X
 		| EFI_HII_OUT_FLAG_CLIP_CLEAN_Y | EFI_HII_IGNORE_LINE_BREAK | EFI_HII_OUT_FLAG_TRANSPARENT,
+		string, fontDisplayInfo, &imageOutput, x, y, NULL, NULL, NULL );
+}
+
+EFI_STATUS DrawLines( CHAR16 *string, const EFI_FONT_DISPLAY_INFO *fontDisplayInfo,
+	EFI_IMAGE_OUTPUT *imageOutput, UINTN x, UINTN y ){
+	return FontProtocol->StringToImage( FontProtocol, EFI_HII_OUT_FLAG_TRANSPARENT,
 		string, fontDisplayInfo, &imageOutput, x, y, NULL, NULL, NULL );
 }
 
@@ -180,6 +196,12 @@ EFI_STATUS GetOneSecWaitor( OUT EFI_EVENT *event ){
 
 EFI_STATUS CancelTimer( EFI_EVENT *event ){
 	return gBS->SetTimer( *event, TimerCancel, 10000000 );
+}
+
+CHAR16 *MeowPathToText( EFI_DEVICE_PATH_PROTOCOL *path ){
+	if( PathConvProtocol ) 
+		return PathConvProtocol->ConvertDevicePathToText( path, TRUE, TRUE );
+	return NULL;
 }
 
 EFI_STATUS Loop(){

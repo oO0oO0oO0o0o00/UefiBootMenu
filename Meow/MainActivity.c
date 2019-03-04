@@ -36,22 +36,32 @@ EFI_STATUS MainActivityDrawString( MAIN_ACTIVITY *this, CHAR16 *string,
 	output.Height = ( UINT16 ) this->Activity.height;
 	output.Image.Bitmap = this->Activity.buffer;
 	
-	return DrawString( string, &displayInfo, &output, x, y );
+	return DrawLines( string, &displayInfo, &output, x, y );
 }
 
 EFI_STATUS MainActivityDrawBootOption( MAIN_ACTIVITY *this, UINTN index,
 		BOOLEAN reverse, BOOLEAN update ){
 	EFI_STATUS status;
 	UINT32 y = this->BootOptionBaseY + DIM_ITEM_SEL_HEIGHT * ( UINT32 ) index;
-	RECT rect;
+	RECT rect, rectPath;
 	rect.x = DIM_ITEM_SEL_H_OFFSET;
 	rect.y = y;
 	rect.w = this->Activity.width - 2 * DIM_ITEM_SEL_H_OFFSET;
 	rect.h = DIM_ITEM_SEL_HEIGHT;
 	
-	if( reverse )
+	if( reverse ){
 		MainActivityDrawRect( this->Activity.buffer, this->Activity.width, rect,
 			( EFI_GRAPHICS_OUTPUT_BLT_PIXEL )COLOR_FG, NULL );
+		// Reversed measn selected, also draw boot path.
+		rectPath.x = 0;//DIM_ITEM_SEL_H_OFFSET;
+		rectPath.y = this->BootPathBaseY;
+		rectPath.w = this->Activity.width;
+		rectPath.h = DIM_ITEM_SEL_HEIGHT * 2;
+		MainActivityDrawRect( this->Activity.buffer, this->Activity.width, rectPath,
+			( EFI_GRAPHICS_OUTPUT_BLT_PIXEL )COLOR_FG, this->bgBuffer );
+		MainActivityDrawString( this, MeowPathToText(this->BootOptions[index].FilePath),
+			0, rectPath.y + DIM_ITEM_TEXT_Y_OFFSET, FALSE );
+	}
 	else if( update )
 		MainActivityDrawRect( this->Activity.buffer, this->Activity.width, rect,
 			( EFI_GRAPHICS_OUTPUT_BLT_PIXEL )COLOR_FG, this->bgBuffer );
@@ -60,8 +70,10 @@ EFI_STATUS MainActivityDrawBootOption( MAIN_ACTIVITY *this, UINTN index,
 		DIM_ITEM_TEXT_X_OFFSET, y + DIM_ITEM_TEXT_Y_OFFSET, reverse );
 	if( EFI_ERROR( status ) ) return status;
 	
-	if( update )
+	if( update ){
 		ActivityInvalidate( ( ACTIVITY*)this, rect );
+		if( reverse ) ActivityInvalidate( ( ACTIVITY*)this, rectPath );
+	}
 	
 	return EFI_SUCCESS;
 }
@@ -164,6 +176,7 @@ void MainActivityOnStart( ACTIVITY *this ){
 		DIM_ITEM_SEL_HEIGHT * ( UINT32 ) thiz->BootOptionCount;
 	thiz->BootAutoBaseY = thiz->BootFailedBaseY + DIM_ITEM_SEL_HEIGHT + DIM_PARA_SEP;
 	thiz->IfShowBootFailed = FALSE;
+	thiz->BootPathBaseY = thiz->BootAutoBaseY + DIM_ITEM_SEL_HEIGHT + DIM_PARA_SEP * 2;
 	
 	MainActivityDrawString( thiz, thiz->staticTexts[0], DIM_ITEM_TEXT_X_OFFSET, 
 		DIM_TITLE_Y_OFFSET + DIM_ITEM_TEXT_Y_OFFSET, TRUE );

@@ -14,6 +14,7 @@ typedef struct{
 	UINT32 BootOptionBaseY;
 	UINT32 BootFailedBaseY;
 	UINT32 BootAutoBaseY;
+	UINT32 BootPathBaseY;
 	UINTN TimerCount;
 	UINTN selection;
 	BOOLEAN IfShowBootFailed;
